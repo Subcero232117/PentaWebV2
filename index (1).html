@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plantilla de Contacto Dinámica</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        @keyframes glow {
+            0% { text-shadow: 0 0 5px #f5f5dc, 0 0 10px #f5f5dc; }
+            50% { text-shadow: 0 0 20px #f5f5dc, 0 0 30px #f5f5dc; }
+            100% { text-shadow: 0 0 5px #f5f5dc, 0 0 10px #f5f5dc; }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes shine {
+            0% { background-position: -100% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #121212 0%, #1a1a1a 100%);
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .header {
+            color: #f5f5dc;
+            font-size: 34px;
+            margin-bottom: 20px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .header i {
+            font-size: 50px;
+            animation: glow 2s ease-in-out infinite;
+        }
+
+        .main-container {
+            display: flex;
+            gap: 40px;
+            max-width: 1200px;
+            width: 100%;
+            justify-content: center;
+            flex-wrap: wrap;
+            perspective: 1000px;
+        }
+
+        .info-container {
+            background: linear-gradient(145deg, #1e1e1e, #2d2d2d);
+            border-radius: 15px;
+            padding: 30px;
+            width: 350px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            transform-style: preserve-3d;
+            transition: transform 0.5s ease;
+        }
+
+        .info-container:hover {
+            transform: translateZ(20px) rotateX(5deg);
+        }
+
+        .form-container {
+            background: linear-gradient(145deg, #1e1e1e, #2d2d2d);
+            border-radius: 15px;
+            padding: 30px;
+            width: 400px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            animation: fadeInScale 0.8s ease-out;
+        }
+
+        .profile-container {
+            width: 120px;
+            height: 120px;
+            margin-bottom: 20px;
+            animation: float 6s ease-in-out infinite;
+            position: relative;
+        }
+
+        .profile-pic {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            background-color: #2d2d2d; /* Color temporal hasta que se agregue el logo */
+            transition: transform 0.3s ease;
+        }
+
+        .profile-pic:hover {
+            transform: scale(1.1);
+        }
+
+        .title {
+            font-size: 38px;
+            background: linear-gradient(145deg, #f5f5dc, #ffd700);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+            text-align: center;
+            animation: glow 3s ease-in-out infinite;
+        }
+
+        .subtitle {
+            font-size: 18px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            border-left: 4px solid #4a90e2;
+            animation: slideIn 0.8s ease-out;
+        }
+
+        .subtitle span {
+            display: block;
+            margin-bottom: 10px;
+            opacity: 0;
+            animation: fadeInScale 0.5s ease-out forwards;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 20px;
+            opacity: 0;
+            animation: slideIn 0.5s ease-out forwards;
+        }
+
+        .form-group:nth-child(1) { animation-delay: 0.2s; }
+        .form-group:nth-child(2) { animation-delay: 0.4s; }
+        .form-group:nth-child(3) { animation-delay: 0.6s; }
+        .form-group:nth-child(4) { animation-delay: 0.8s; }
+
+        .form-group label {
+            font-size: 16px;
+            font-weight: 600;
+            color: #4a90e2;
+            transform: translateX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .form-group:hover label {
+            transform: translateX(5px);
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            background: rgba(51, 51, 51, 0.8);
+            color: #fff;
+            border: 2px solid transparent;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 16px;
+            width: 100%;
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            border-color: #4a90e2;
+            background: rgba(74, 144, 226, 0.1);
+            outline: none;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .button {
+            background: linear-gradient(90deg, #4a90e2, #7b68ee, #4a90e2);
+            background-size: 200% auto;
+            color: #ffffff;
+            border: none;
+            border-radius: 25px;
+            padding: 15px 30px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+            font-size: 18px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            animation: fadeInScale 0.5s ease-out 1s forwards;
+            opacity: 0;
+        }
+
+        .button:hover {
+            animation: shine 3s infinite linear;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(74, 144, 226, 0.4);
+        }
+
+        .loading, .result {
+            display: none;
+            background: linear-gradient(145deg, #1e1e1e, #2d2d2d);
+            border-radius: 15px;
+            padding: 30px;
+            width: 400px;
+            text-align: center;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .loading.fade-in, .result.fade-in {
+            display: block;
+            animation: fadeInScale 0.5s ease-out;
+        }
+
+        .loading i {
+            font-size: 50px;
+            color: #4a90e2;
+            animation: spin 1.5s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .result {
+            background: linear-gradient(145deg, #1e1e1e, #2d2d2d);
+        }
+
+        .result-title {
+            font-size: 28px;
+            color: #4a90e2;
+            margin-bottom: 20px;
+        }
+
+        .result-data {
+            font-size: 18px;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            .info-container,
+            .form-container {
+                width: 100%;
+                max-width: 400px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <i class="fab fa-discord"></i> Penta Studio
+    </div>
+    <div class="main-container">
+        <div class="info-container">
+            <div class="profile-container">
+                <!-- Reemplaza 'ruta-a-tu-logo.png' con la ruta real de tu imagen -->
+                <img src="logo.png" alt="logo.png" class="profile-pic">
+            </div>
+            <div class="title">Penta Games</div>
+            <div class="subtitle" id="subtitle"></div>
+        </div>
+        <div class="form-container">
+            <div class="form-group">
+                <label for="nametag">Nametag:</label>
+                <input type="text" id="nametag" placeholder="Escribe tu nametag">
+            </div>
+            <div class="form-group">
+                <label for="discord">Usuario de Discord:</label>
+                <input type="text" id="discord" placeholder="Escribe tu usuario de Discord">
+            </div>
+            <div class="form-group">
+                <label for="reason">¿Por qué quieres estar en nuestro evento?</label>
+                <textarea id="reason" placeholder="Escribe una breve explicación"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="device">Selecciona tu dispositivo:</label>
+                <select id="device">
+                    <option value="móvil">Móvil</option>
+                    <option value="pc">PC</option>
+                    <option value="playstation">PlayStation</option>
+                </select>
+            </div>
+            <button class="button" onclick="saveData()">¡Únete al evento!</button>
+        </div>
+    </div>
+    <div class="loading" id="loading-container">
+        <i class="fas fa-spinner"></i>
+    </div>
+    <div class="result" id="result-container">
+        <div class="result-title">¡Registro Exitoso!</div>
+        <div class="result-data" id="result-nametag"></div>
+        <div class="result-data" id="result-discord"></div>
+        <div class="result-data" id="result-reason"></div>
+        <div class="result-data" id="result-device"></div>
+        <div class="result-message" id="result-message"></div>
+    </div>
+
+    <script>
+        
+        // Almacenamiento de datos en localStorage
+        const STORAGE_KEY = 'pentaGamesRegistrations';
+        const USER_REGISTERED_KEY = 'userRegistered';
+        
+        // Clase para manejar el almacenamiento
+        class RegistrationManager {
+            constructor() {
+                this.registrations = this.loadRegistrations();
+            }
+
+            loadRegistrations() {
+                const stored = localStorage.getItem(STORAGE_KEY);
+                return stored ? JSON.parse(stored) : {
+                    nametags: [],
+                    discordUsers: [],
+                    count: 0
+                };
+            }
+
+            saveRegistrations() {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(this.registrations));
+            }
+
+            isNametagTaken(nametag) {
+                return this.registrations.nametags.includes(nametag.toLowerCase());
+            }
+
+            isDiscordUserTaken(discordUser) {
+                return this.registrations.discordUsers.includes(discordUser.toLowerCase());
+            }
+
+            addRegistration(nametag, discordUser) {
+                this.registrations.nametags.push(nametag.toLowerCase());
+                this.registrations.discordUsers.push(discordUser.toLowerCase());
+                this.registrations.count++;
+                this.saveRegistrations();
+                // Marcar al usuario como registrado
+                localStorage.setItem(USER_REGISTERED_KEY, 'true');
+                return this.registrations.count;
+            }
+
+            isUserRegistered() {
+                return localStorage.getItem(USER_REGISTERED_KEY) === 'true';
+            }
+        }
+
+        // Inicializar el administrador de registros
+        const registrationManager = new RegistrationManager();
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Verificar si el usuario ya está registrado
+            if (registrationManager.isUserRegistered()) {
+                showAlreadyRegisteredMessage();
+                return;
+            }
+
+            // Resto del código DOMContentLoaded...
+            const subtitle = document.getElementById('subtitle');
+            const text = [
+                "🎮 ¡Bienvenido a la nueva era de los eventos!",
+                "🏆 Compite por un increíble premio",
+                "🌟 Inscribete a este eventaso",
+                "🎉 ¡Únete a nuestro servidor!",
+                "https://discord.gg/Uf5ezKMQBg"
+            ];
+
+            function createSpanWithDelay(text, delay) {
+                setTimeout(() => {
+                    const span = document.createElement('span');
+                    span.textContent = text;
+                    subtitle.appendChild(span);
+                }, delay);
+            }
+
+            text.forEach((line, index) => {
+                createSpanWithDelay(line, index * 800);
+            });
+        });
+
+        function showAlreadyRegisteredMessage() {
+            document.querySelector('.main-container').innerHTML = `
+                <div class="info-container" style="text-align: center;">
+                    <div class="title">¡Ya estás registrado!</div>
+                    <div class="subtitle">
+                        <p>Ya has completado tu registro para el evento.</p>
+                        <p>Si necesitas modificar tus datos, contacta con un administrador.</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function validateForm(nametag, discord) {
+            // Validación de formato de nametag
+            if (nametag.length < 3 || nametag.length > 20) {
+                alert('El nametag debe tener entre 3 y 20 caracteres.');
+                return false;
+            }
+
+            // Validación de formato de Discord (usuario#0000 o solo usuario)
+            const discordRegex = /^.{3,32}(#\d{4})?$/;
+            if (!discordRegex.test(discord)) {
+                alert('El formato del usuario de Discord no es válido.');
+                return false;
+            }
+
+            // Verificar si el nametag ya está registrado
+            if (registrationManager.isNametagTaken(nametag)) {
+                alert('Este nametag ya está registrado. Por favor, elige otro.');
+                return false;
+            }
+
+            // Verificar si el usuario de Discord ya está registrado
+            if (registrationManager.isDiscordUserTaken(discord)) {
+                alert('Este usuario de Discord ya está registrado. Si crees que esto es un error, contacta con un administrador.');
+                return false;
+            }
+
+            return true;
+        }
+
+        function saveData() {
+            const nametag = document.getElementById('nametag').value.trim();
+            const discord = document.getElementById('discord').value.trim();
+            const reason = document.getElementById('reason').value.trim();
+            const device = document.getElementById('device').value.trim();
+
+            // Validación básica de campos vacíos
+            if (!nametag || !discord || !reason || !device) {
+                alert('Por favor, completa todos los campos.');
+                return;
+            }
+
+            // Validación avanzada de formato y duplicados
+            if (!validateForm(nametag, discord)) {
+                return;
+            }
+
+            // Registrar al usuario
+            const registrationNumber = registrationManager.addRegistration(nametag, discord);
+
+            // Mostrar animación de carga
+            document.querySelector('.main-container').style.display = 'none';
+            document.getElementById('loading-container').classList.add('fade-in');
+
+            // Mostrar resultado
+            setTimeout(() => {
+                document.getElementById('loading-container').classList.remove('fade-in');
+                document.getElementById('result-container').classList.add('fade-in');
+
+                document.getElementById('result-nametag').textContent = `Nametag: ${nametag}`;
+                document.getElementById('result-discord').textContent = `Usuario de Discord: ${discord}`;
+                document.getElementById('result-reason').textContent = `Razón: ${reason}`;
+                document.getElementById('result-device').textContent = `Dispositivo: ${device}`;
+                document.getElementById('result-message').textContent = 
+                    `¡Felicitaciones! Tu registro ha sido exitoso. Eres el participante #${registrationNumber}. ` +
+                    `Toma una captura de pantalla y envíala a Penta Studio.`;
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
