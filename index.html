@@ -111,14 +111,26 @@
             animation: fadeInScale 0.8s ease-out;
         }
 
-        .profile-pic {
-            border-radius: 50%;
+        .profile-container {
             width: 120px;
             height: 120px;
             margin-bottom: 20px;
-            background: linear-gradient(45deg, #4a90e2, #7b68ee);
             animation: float 6s ease-in-out infinite;
+            position: relative;
+        }
+
+        .profile-pic {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
             box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            background-color: #2d2d2d; /* Color temporal hasta que se agregue el logo */
+            transition: transform 0.3s ease;
+        }
+
+        .profile-pic:hover {
+            transform: scale(1.1);
         }
 
         .title {
@@ -253,6 +265,11 @@
             animation: spin 1.5s linear infinite;
         }
 
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
         .result {
             background: linear-gradient(145deg, #1e1e1e, #2d2d2d);
         }
@@ -287,11 +304,14 @@
 </head>
 <body>
     <div class="header">
-        <i class="fab fa-discord"></i> Penta Games
+        <i class="fab fa-discord"></i> Penta Studio
     </div>
     <div class="main-container">
         <div class="info-container">
-            <div class="profile-pic"></div>
+            <div class="profile-container">
+                <!-- Reemplaza 'ruta-a-tu-logo.png' con la ruta real de tu imagen -->
+                <img src="logo.png" alt="Penta Games Logo" class="profile-pic">
+            </div>
             <div class="title">Penta Games</div>
             <div class="subtitle" id="subtitle"></div>
         </div>
@@ -332,14 +352,70 @@
     </div>
 
     <script>
+        
+        // Almacenamiento de datos en localStorage
+        const STORAGE_KEY = 'pentaGamesRegistrations';
+        const USER_REGISTERED_KEY = 'userRegistered';
+        
+        // Clase para manejar el almacenamiento
+        class RegistrationManager {
+            constructor() {
+                this.registrations = this.loadRegistrations();
+            }
+
+            loadRegistrations() {
+                const stored = localStorage.getItem(STORAGE_KEY);
+                return stored ? JSON.parse(stored) : {
+                    nametags: [],
+                    discordUsers: [],
+                    count: 0
+                };
+            }
+
+            saveRegistrations() {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(this.registrations));
+            }
+
+            isNametagTaken(nametag) {
+                return this.registrations.nametags.includes(nametag.toLowerCase());
+            }
+
+            isDiscordUserTaken(discordUser) {
+                return this.registrations.discordUsers.includes(discordUser.toLowerCase());
+            }
+
+            addRegistration(nametag, discordUser) {
+                this.registrations.nametags.push(nametag.toLowerCase());
+                this.registrations.discordUsers.push(discordUser.toLowerCase());
+                this.registrations.count++;
+                this.saveRegistrations();
+                // Marcar al usuario como registrado
+                localStorage.setItem(USER_REGISTERED_KEY, 'true');
+                return this.registrations.count;
+            }
+
+            isUserRegistered() {
+                return localStorage.getItem(USER_REGISTERED_KEY) === 'true';
+            }
+        }
+
+        // Inicializar el administrador de registros
+        const registrationManager = new RegistrationManager();
+
         document.addEventListener('DOMContentLoaded', function() {
+            // Verificar si el usuario ya está registrado
+            if (registrationManager.isUserRegistered()) {
+                showAlreadyRegisteredMessage();
+                return;
+            }
+
+            // Resto del código DOMContentLoaded...
             const subtitle = document.getElementById('subtitle');
             const text = [
                 "🎮 ¡Bienvenido a la nueva era de los eventos!",
                 "🏆 Compite por un increíble premio",
-                "🌟 Inscribete ya mismo!!",
-                "🎉 ¡Únete a nuestro server!",
-                " ⬠ | Penta Studios 👑",
+                "🌟 Inscribete a este eventaso",
+                "🎉 ¡Únete a nuestro servidor!",
                 "https://discord.gg/Uf5ezKMQBg"
             ];
 
@@ -356,8 +432,46 @@
             });
         });
 
-        const usedNametags = new Set();
-        let registrationCount = 0;
+        function showAlreadyRegisteredMessage() {
+            document.querySelector('.main-container').innerHTML = `
+                <div class="info-container" style="text-align: center;">
+                    <div class="title">¡Ya estás registrado!</div>
+                    <div class="subtitle">
+                        <p>Ya has completado tu registro para el evento.</p>
+                        <p>Si necesitas modificar tus datos, contacta con un administrador.</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function validateForm(nametag, discord) {
+            // Validación de formato de nametag
+            if (nametag.length < 3 || nametag.length > 20) {
+                alert('El nametag debe tener entre 3 y 20 caracteres.');
+                return false;
+            }
+
+            // Validación de formato de Discord (usuario#0000 o solo usuario)
+            const discordRegex = /^.{3,32}(#\d{4})?$/;
+            if (!discordRegex.test(discord)) {
+                alert('El formato del usuario de Discord no es válido.');
+                return false;
+            }
+
+            // Verificar si el nametag ya está registrado
+            if (registrationManager.isNametagTaken(nametag)) {
+                alert('Este nametag ya está registrado. Por favor, elige otro.');
+                return false;
+            }
+
+            // Verificar si el usuario de Discord ya está registrado
+            if (registrationManager.isDiscordUserTaken(discord)) {
+                alert('Este usuario de Discord ya está registrado. Si crees que esto es un error, contacta con un administrador.');
+                return false;
+            }
+
+            return true;
+        }
 
         function saveData() {
             const nametag = document.getElementById('nametag').value.trim();
@@ -365,22 +479,25 @@
             const reason = document.getElementById('reason').value.trim();
             const device = document.getElementById('device').value.trim();
 
+            // Validación básica de campos vacíos
             if (!nametag || !discord || !reason || !device) {
                 alert('Por favor, completa todos los campos.');
                 return;
             }
 
-            if (usedNametags.has(nametag)) {
-                alert('Este nametag ya ha sido utilizado. Por favor, elige otro.');
+            // Validación avanzada de formato y duplicados
+            if (!validateForm(nametag, discord)) {
                 return;
             }
 
-            usedNametags.add(nametag);
-            registrationCount++;
+            // Registrar al usuario
+            const registrationNumber = registrationManager.addRegistration(nametag, discord);
 
+            // Mostrar animación de carga
             document.querySelector('.main-container').style.display = 'none';
             document.getElementById('loading-container').classList.add('fade-in');
 
+            // Mostrar resultado
             setTimeout(() => {
                 document.getElementById('loading-container').classList.remove('fade-in');
                 document.getElementById('result-container').classList.add('fade-in');
@@ -389,7 +506,9 @@
                 document.getElementById('result-discord').textContent = `Usuario de Discord: ${discord}`;
                 document.getElementById('result-reason').textContent = `Razón: ${reason}`;
                 document.getElementById('result-device').textContent = `Dispositivo: ${device}`;
-                document.getElementById('result-message').textContent = `¡Felicitaciones! Tu registro ha sido exitoso. Eres el participante #${registrationCount}. Toma una captura de pantalla y envíala a Penta Studio.`;
+                document.getElementById('result-message').textContent = 
+                    `¡Felicitaciones! Tu registro ha sido exitoso. Eres el participante #${registrationNumber}. ` +
+                    `Toma una captura de pantalla y envíala a Penta Studio.`;
             }, 3000);
         }
     </script>
