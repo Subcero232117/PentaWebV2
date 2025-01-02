@@ -473,44 +473,68 @@
             return true;
         }
 
-        function saveData() {
-            const nametag = document.getElementById('nametag').value.trim();
-            const discord = document.getElementById('discord').value.trim();
-            const reason = document.getElementById('reason').value.trim();
-            const device = document.getElementById('device').value.trim();
+        async function saveData() {
+    const nametag = document.getElementById('nametag').value.trim();
+    const discord = document.getElementById('discord').value.trim();
+    const reason = document.getElementById('reason').value.trim();
+    const device = document.getElementById('device').value.trim();
 
-            // Validación básica de campos vacíos
-            if (!nametag || !discord || !reason || !device) {
-                alert('Por favor, completa todos los campos.');
-                return;
-            }
+    // Validación básica de campos vacíos
+    if (!nametag || !discord || !reason || !device) {
+        alert('Por favor, completa todos los campos.');
+        return;
+    }
 
-            // Validación avanzada de formato y duplicados
-            if (!validateForm(nametag, discord)) {
-                return;
-            }
+    // Validación avanzada de formato y duplicados
+    if (!validateForm(nametag, discord)) {
+        return;
+    }
 
-            // Registrar al usuario
-            const registrationNumber = registrationManager.addRegistration(nametag, discord);
+    // Mostrar animación de carga
+    document.querySelector('.main-container').style.display = 'none';
+    document.getElementById('loading-container').classList.add('fade-in');
 
-            // Mostrar animación de carga
-            document.querySelector('.main-container').style.display = 'none';
-            document.getElementById('loading-container').classList.add('fade-in');
+    try {
+        // Enviar datos al backend
+        const response = await fetch('http://localhost:5000/submit-form', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                nametag,
+                discord,
+                reason,
+                device
+            })
+        });
 
-            // Mostrar resultado
-            setTimeout(() => {
-                document.getElementById('loading-container').classList.remove('fade-in');
-                document.getElementById('result-container').classList.add('fade-in');
-
-                document.getElementById('result-nametag').textContent = `Nametag: ${nametag}`;
-                document.getElementById('result-discord').textContent = `Usuario de Discord: ${discord}`;
-                document.getElementById('result-reason').textContent = `Razón: ${reason}`;
-                document.getElementById('result-device').textContent = `Dispositivo: ${device}`;
-                document.getElementById('result-message').textContent = 
-                    `¡Felicitaciones! Tu registro ha sido exitoso. Eres el participante #${registrationNumber}. ` +
-                    `Toma una captura de pantalla y envíala a Penta Studio.`;
-            }, 3000);
+        const result = await response.json();
+        
+        if (!result.success) {
+            throw new Error(result.message);
         }
-    </script>
-</body>
-</html>
+
+        // Registrar al usuario localmente
+        const registrationNumber = registrationManager.addRegistration(nametag, discord);
+
+        // Mostrar resultado
+        setTimeout(() => {
+            document.getElementById('loading-container').classList.remove('fade-in');
+            document.getElementById('result-container').classList.add('fade-in');
+
+            document.getElementById('result-nametag').textContent = `Nametag: ${nametag}`;
+            document.getElementById('result-discord').textContent = `Usuario de Discord: ${discord}`;
+            document.getElementById('result-reason').textContent = `Razón: ${reason}`;
+            document.getElementById('result-device').textContent = `Dispositivo: ${device}`;
+            document.getElementById('result-message').textContent = 
+                `¡Felicitaciones! Tu registro ha sido exitoso. Eres el participante #${registrationNumber}. ` +
+                `Toma una captura de pantalla y envíala a Penta Studio.`;
+        }, 3000);
+
+    } catch (error) {
+        alert('Hubo un error al enviar el formulario: ' + error.message);
+        document.querySelector('.main-container').style.display = 'flex';
+        document.getElementById('loading-container').classList.remove('fade-in');
+    }
+}
