@@ -518,4 +518,79 @@
                 return false;
             }
 
-            // Verificar si el
+            // Verificar si el usuario de Discord ya está registrado
+            if (registrationManager.isDiscordUserTaken(discord)) {
+                alert('Este usuario de Discord ya está registrado. Si crees que esto es un error, contacta con un administrador.');
+                return false;
+            }
+
+            return true;
+        }
+
+        async function saveData() {
+    const nametag = document.getElementById('nametag').value.trim();
+    const discord = document.getElementById('discord').value.trim();
+    const reason = document.getElementById('reason').value.trim();
+    const device = document.getElementById('device').value.trim();
+
+    // Validación básica de campos vacíos
+    if (!nametag || !discord || !reason || !device) {
+        alert('Por favor, completa todos los campos.');
+        return;
+    }
+
+    // Validación avanzada de formato y duplicados
+    if (!validateForm(nametag, discord)) {
+        return;
+    }
+
+    // Mostrar animación de carga
+    document.querySelector('.main-container').style.display = 'none';
+    document.getElementById('loading-container').classList.add('fade-in');
+
+    try {
+        // Enviar datos a Formspree
+        const response = await fetch('https://formspree.io/f/mqaagakn', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                Nametag: nametag,
+                Discord: discord,
+                Razón: reason,
+                Dispositivo: device,
+                _replyto: 'santosramonsteven@gmail.com'
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error('Error al enviar el formulario');
+        }
+
+        // Registrar al usuario localmente
+        const registrationNumber = registrationManager.addRegistration(nametag, discord);
+
+        // Mostrar resultado
+        setTimeout(() => {
+            document.getElementById('loading-container').classList.remove('fade-in');
+            document.getElementById('result-container').classList.add('fade-in');
+
+            document.getElementById('result-nametag').textContent = `Nametag: ${nametag}`;
+            document.getElementById('result-discord').textContent = `Usuario de Discord: ${discord}`;
+            document.getElementById('result-reason').textContent = `Razón: ${reason}`;
+            document.getElementById('result-device').textContent = `Dispositivo: ${device}`;
+            document.getElementById('result-message').textContent = 
+                `¡Felicitaciones! Tu registro ha sido exitoso. Eres el participante #${registrationNumber}. ` +
+                `Guardalo para tener pruebas por cualquier situación.`;
+        }, 3000);
+
+    } catch (error) {
+        alert('Hubo un error al enviar el formulario: ' + error.message);
+        document.querySelector('.main-container').style.display = 'flex';
+        document.getElementById('loading-container').classList.remove('fade-in');
+    }
+        }
+    </script>
+</body>
+</html>
